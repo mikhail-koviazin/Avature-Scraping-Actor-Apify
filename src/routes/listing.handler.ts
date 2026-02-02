@@ -25,8 +25,9 @@ export async function listingHandler({ request, $, enqueueLinks, addRequests }: 
     const jobLinks: Source[] = [];
     const seenUrls = new Set<string>();
 
-    $('a[href*="/careers/JobDetail/"], a[href*="/JobDetail/"]').each((_, el) => {
-        const $link = $(el);
+    $('.section__content__results .article, .list .list-item, .list .list__item').each((_, articleEl) => {
+        const $article = $(articleEl);
+        const $link = $article.find(".article__header__text__title a, .list__item__text__title a");
         const href = $link.attr('href');
         if (!href) return;
 
@@ -36,12 +37,10 @@ export async function listingHandler({ request, $, enqueueLinks, addRequests }: 
         if (seenUrls.has(fullUrl)) return;
         seenUrls.add(fullUrl);
 
-        const $article = $link.closest('.article');
-
-        const title = $article.find('.article__header__text__title').first().text().trim();
+        const title = $article.find('.article__header__text__title, .list__item__text__title').first().text().trim();
 
         const subtitles: Record<string, string> = {};
-        $article.find('.article__header__text__subtitle').each((__, subWrapper) => {
+        $article.find('.article__header__text__subtitle, .list__item__text__subtitle').each((__, subWrapper) => {
             const $subWrapper = $(subWrapper);
             const $subtitles = $subWrapper.find('[class^=list-item-]');
             if (!$subtitles.length) {

@@ -24,7 +24,7 @@ export async function jobDetailHandler({ request, $ }: CheerioCrawlingContext) {
     const title = request.userData?.title || getJobTitle(url);
 
     // Location variations - try structured extraction first, then text-based
-    const location = request.userData?.subtitles?.location || (getFieldByLabels([
+    const location = request.userData?.subtitles?.location || request.userData?.subtitles?.locationBuiltIn || (getFieldByLabels([
         'work location', 'location', 'job location', 'city', 'office location',
     ]) ?? getFieldFromText(['Location']));
 
@@ -46,10 +46,10 @@ export async function jobDetailHandler({ request, $ }: CheerioCrawlingContext) {
     const salary = parseSalary(salaryRaw);
 
     // Employment type variations
-    const employmentType = getFieldByLabels([
+    const employmentType = request.userData?.subtitles?.workingTime || (getFieldByLabels([
         'employment type', 'job type', 'position type', 'full/part time',
         'full time/part time', 'type',
-    ]);
+    ]));
 
     // Employment classification (exempt/non-exempt)
     const employmentClassification = getFieldByLabels([
@@ -57,14 +57,14 @@ export async function jobDetailHandler({ request, $ }: CheerioCrawlingContext) {
     ]);
 
     // Duration
-    const duration = getFieldByLabels([
+    const duration = request.userData?.subtitles?.contractType || (getFieldByLabels([
         'duration', 'contract length', 'term', 'assignment length',
-    ]);
+    ]));
 
     // Department/Business area variations
-    const department = getFieldByLabels([
+    const department = request.userData?.subtitles?.department || (getFieldByLabels([
         'department', 'business area', 'division', 'team', 'group', 'organization',
-    ]) ?? getFieldFromText(['Business Area', 'Department']);
+    ]) ?? getFieldFromText(['Business Area', 'Department']));
 
     // Category/Job family
     const category = getFieldByLabels([
@@ -72,9 +72,9 @@ export async function jobDetailHandler({ request, $ }: CheerioCrawlingContext) {
     ]);
 
     // Entity/Company (for multi-entity organizations)
-    const entity = getFieldByLabels([
+    const entity = request.userData?.subtitles?.legalEntity || (getFieldByLabels([
         'entity', 'company', 'subsidiary', 'business unit', 'legal entity',
-    ]);
+    ]));
 
     // Posted date variations
     const postedDateRaw = getFieldByLabels([
