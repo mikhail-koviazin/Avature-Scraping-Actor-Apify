@@ -27,7 +27,8 @@
       "Bash(node scripts/format-samples.js:*)",
       "Bash(npx apify run:*)",
       "Bash(npx tsx:*)",
-      "mcp__apify__apify-slash-rag-web-browser"
+      "mcp__apify__apify-slash-rag-web-browser",
+      "WebFetch(domain:apify.com)"
     ]
   }
 }

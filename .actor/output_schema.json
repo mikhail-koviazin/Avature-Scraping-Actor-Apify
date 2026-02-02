@@ -1,11 +1,19 @@
 {
     "actorOutputSchemaVersion": 1,
-    "title": "Output schema of the files scraper",
+    "title": "Avature Job Scraper Output",
+    "description": "Job listings extracted from Avature career sites",
     "properties": {
         "overview": {
             "type": "string",
-            "title": "Overview",
+            "title": "Jobs Overview",
+            "description": "Compact view with key job details",
             "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+        },
+        "detailed": {
+            "type": "string",
+            "title": "Full Details",
+            "description": "Complete job data including descriptions",
+            "template": "{{links.apiDefaultDatasetUrl}}/items?view=detailed"
         }
     }
 }

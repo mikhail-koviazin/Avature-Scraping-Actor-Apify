@@ -6,11 +6,17 @@
         "startUrls": {
             "title": "Start URLs",
             "type": "array",
-            "description": "Avature career site URLs to scrape. Works with any domain using Avature (e.g., uclahealth.avature.net, bloomberg.avature.net).",
+            "description": "Avature career site URLs to scrape. Works with any subdomain using Avature (e.g., uclahealth.avature.net, bloomberg.avature.net).",
             "editor": "requestListSources",
             "prefill": [
                 {
                     "url": "https://uclahealth.avature.net/careers/SearchJobs"
+                },
+                {
+                    "url": "https://bloomberg.avature.net/careers/SearchJobs/?jobRecordsPerPage=12&jobOffset=12"
+                },
+                {
+                    "url": "https://zungfu.avature.net/en_US/careers/JobDetail/Hong-Kong-Corporate-Communication-and-Sustainability-Intern-6-months/1121"
                 }
             ]
         },
@@ -20,7 +26,7 @@
             "description": "List of Avature subdomains to scrape (e.g., 'company.avature.net'). URLs will be built automatically using the Subdomain Path.",
             "editor": "stringList",
             "sectionCaption": "Alternative Input",
-            "sectionDescription": "Instead of full URLs, you can provide just subdomain names."
+            "sectionDescription": "In addition to full URLs (in Start URLs), you can provide just subdomain names here.",
         },
         "subdomainPath": {
             "title": "Subdomain Path",
