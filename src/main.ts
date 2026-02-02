@@ -15,11 +15,26 @@ interface StartUrl {
 }
 
 interface Input {
-    startUrls: StartUrl[];
+    startUrls?: StartUrl[];
+    /** List of subdomains to scrape (e.g., ["company.avature.net", "other.avature.net"]) */
+    subdomains?: string[];
+    /** URL path to append to subdomains (default: /careers/SearchJobs) */
+    subdomainPath?: string;
     maxRequestsPerCrawl?: number;
     maxConcurrency?: number;
+
+    // Proxy configuration
+    /** Proxy provider: 'apify' (default), 'scraperapi', or 'none' */
+    proxyType?: 'apify' | 'scraperapi' | 'none';
+    /** Apify proxy groups (e.g., ['RESIDENTIAL', 'SHADER']) - only for proxyType: 'apify' */
+    apifyProxyGroups?: string[];
+    /** Apify proxy country code (e.g., 'US', 'GB') - only for proxyType: 'apify' */
+    apifyProxyCountryCode?: string;
+    /** ScraperAPI key - only for proxyType: 'scraperapi' */
     scraperApiKey?: string;
+    /** ScraperAPI country code - only for proxyType: 'scraperapi' */
     scraperApiCountry?: string;
+
     saveErrorSamples?: boolean;
     errorSamplesPath?: string;
 }
@@ -213,17 +228,56 @@ Actor.on('aborting', async () => {
 });
 
 const {
-    startUrls = [{ url: 'https://uclahealth.avature.net/careers/SearchJobs' }],
+    startUrls,
+    subdomains,
+    subdomainPath = '/careers/SearchJobs',
     maxRequestsPerCrawl = 1000,
     maxConcurrency = 10,
-    scraperApiKey = 'b1f36739eb2a544919de0ab63c38ed20',
+    // Proxy settings
+    proxyType = 'apify',
+    apifyProxyGroups,
+    apifyProxyCountryCode,
+    scraperApiKey,
     scraperApiCountry,
     saveErrorSamples = true,
     errorSamplesPath = './samples',
 } = (await Actor.getInput<Input>()) ?? ({} as Input);
 
+// Build start URLs from subdomains if provided
+const buildUrlsFromSubdomains = (domains: string[], path: string): StartUrl[] => {
+    return domains.map((domain) => {
+        // Normalize domain: remove protocol if present, ensure no trailing slash
+        let normalizedDomain = domain.trim();
+        normalizedDomain = normalizedDomain.replace(/^https?:\/\//, '');
+        normalizedDomain = normalizedDomain.replace(/\/+$/, '');
+
+        // Normalize path: ensure leading slash
+        const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+        return { url: `https://${normalizedDomain}${normalizedPath}` };
+    });
+};
+
+// Combine startUrls and subdomain-generated URLs
+let allStartUrls: StartUrl[] = [];
+
+if (subdomains && subdomains.length > 0) {
+    const subdomainUrls = buildUrlsFromSubdomains(subdomains, subdomainPath);
+    log.info(`Generated ${subdomainUrls.length} URLs from subdomains`, { path: subdomainPath });
+    allStartUrls.push(...subdomainUrls);
+}
+
+if (startUrls && startUrls.length > 0) {
+    allStartUrls.push(...startUrls);
+}
+
+// Default if nothing provided
+if (allStartUrls.length === 0) {
+    allStartUrls = [{ url: 'https://uclahealth.avature.net/careers/SearchJobs' }];
+}
+
 // Validate and label start URLs
-const labeledStartUrls = startUrls.map((startUrl) => {
+const labeledStartUrls = allStartUrls.map((startUrl) => {
     const url = typeof startUrl === 'string' ? startUrl : startUrl.url;
     const label = getRouteLabel(url) ?? Label.LISTING; // Default to LISTING for base URLs
 
@@ -248,12 +302,32 @@ const buildScraperApiProxyUrl = (apiKey: string, country?: string): string => {
     return `http://${options.join('.')}:${apiKey}@proxy-server.scraperapi.com:8001`;
 };
 
-const proxyUrl = buildScraperApiProxyUrl(scraperApiKey, scraperApiCountry);
-log.info('Using ScraperAPI rotating proxies', { country: scraperApiCountry ?? 'auto' });
+// Configure proxy based on proxyType
+let proxyConfiguration;
 
-const proxyConfiguration = await Actor.createProxyConfiguration({
-    proxyUrls: [proxyUrl],
-});
+if (proxyType === 'none') {
+    log.info('Running without proxy');
+    proxyConfiguration = undefined;
+} else if (proxyType === 'scraperapi') {
+    if (!scraperApiKey) {
+        throw new Error('scraperApiKey is required when proxyType is "scraperapi"');
+    }
+    const proxyUrl = buildScraperApiProxyUrl(scraperApiKey, scraperApiCountry);
+    log.info('Using ScraperAPI proxies', { country: scraperApiCountry ?? 'auto' });
+    proxyConfiguration = await Actor.createProxyConfiguration({
+        proxyUrls: [proxyUrl],
+    });
+} else {
+    // Default: Apify proxies
+    log.info('Using Apify proxies', {
+        groups: apifyProxyGroups ?? ['RESIDENTIAL'],
+        country: apifyProxyCountryCode ?? 'auto',
+    });
+    proxyConfiguration = await Actor.createProxyConfiguration({
+        groups: apifyProxyGroups,
+        countryCode: apifyProxyCountryCode,
+    });
+}
 
 const crawler = new CheerioCrawler({
     proxyConfiguration,
@@ -313,6 +387,9 @@ const crawler = new CheerioCrawler({
             // Don't process error pages further
             return;
         }
+
+        // Clean up hidden elements before processing
+        $('.visibility--hidden--visually').remove();
 
         // Page is valid, proceed with normal routing
         await router(context);

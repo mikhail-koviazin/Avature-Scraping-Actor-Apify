@@ -12,19 +12,30 @@
                 {
                     "url": "https://uclahealth.avature.net/careers/SearchJobs"
                 }
-            ],
-            "default": [
-                {
-                    "url": "https://uclahealth.avature.net/careers/SearchJobs"
-                }
             ]
+        },
+        "subdomains": {
+            "title": "Subdomains",
+            "type": "array",
+            "description": "List of Avature subdomains to scrape (e.g., 'company.avature.net'). URLs will be built automatically using the Subdomain Path.",
+            "editor": "stringList",
+            "sectionCaption": "Alternative Input",
+            "sectionDescription": "Instead of full URLs, you can provide just subdomain names."
+        },
+        "subdomainPath": {
+            "title": "Subdomain Path",
+            "type": "string",
+            "description": "URL path to append to subdomains.",
+            "editor": "textfield",
+            "default": "/careers/SearchJobs"
         },
         "maxRequestsPerCrawl": {
             "title": "Max Requests per Crawl",
             "type": "integer",
             "description": "Maximum number of pages to scrape (0 = unlimited).",
             "default": 1000,
-            "minimum": 0
+            "minimum": 0,
+            "sectionCaption": "Crawler Settings"
         },
         "maxConcurrency": {
             "title": "Max Concurrency",
@@ -34,10 +45,38 @@
             "minimum": 1,
             "maximum": 50
         },
+        "proxyType": {
+            "title": "Proxy Type",
+            "type": "string",
+            "description": "Select proxy provider to use.",
+            "editor": "select",
+            "default": "apify",
+            "enum": ["apify", "scraperapi", "none"],
+            "enumTitles": ["Apify Proxies (default)", "ScraperAPI", "No Proxy"],
+            "sectionCaption": "Proxy Settings",
+            "sectionDescription": "Configure proxy settings for the crawler."
+        },
+        "apifyProxyGroups": {
+            "title": "Apify Proxy Groups",
+            "type": "array",
+            "description": "Apify proxy groups to use (e.g., RESIDENTIAL, SHADER). Leave empty for default.",
+            "editor": "select",
+            "items": {
+                "type": "string",
+                "enum": ["RESIDENTIAL", "SHADER", "BUYPROXIES94952"],
+                "enumTitles": ["Residential", "Datacenter (SHADER)", "Datacenter (Buyproxies)"]
+            }
+        },
+        "apifyProxyCountryCode": {
+            "title": "Apify Proxy Country",
+            "type": "string",
+            "description": "Country code for geo-targeted requests (e.g., 'US', 'GB', 'DE'). Leave empty for automatic selection.",
+            "editor": "textfield"
+        },
         "scraperApiKey": {
             "title": "ScraperAPI Key",
             "type": "string",
-            "description": "Your ScraperAPI API key for rotating proxies.",
+            "description": "Your ScraperAPI API key (required when Proxy Type is 'ScraperAPI').",
             "editor": "textfield",
             "isSecret": true
         },
@@ -51,7 +90,8 @@
             "title": "Save Error Samples",
             "type": "boolean",
             "description": "Save HTML samples of error pages (404, 403, auth required, etc.) for debugging.",
-            "default": true
+            "default": true,
+            "sectionCaption": "Debug Settings"
         },
         "errorSamplesPath": {
             "title": "Error Samples Path",
@@ -60,6 +100,5 @@
             "editor": "textfield",
             "default": "./samples"
         }
-    },
-    "required": ["startUrls"]
+    }
 }
