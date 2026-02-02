@@ -25,7 +25,8 @@ Provide full URLs to Avature career pages:
 {
     "startUrls": [
         { "url": "https://bloomberg.avature.net/careers/SearchJobs" },
-        { "url": "https://uclahealth.avature.net/careers/SearchJobs" }
+        { "url": "https://bloomberg.avature.net/careers/SearchJobs/?jobRecordsPerPage=12&jobOffset=12" },
+        { "url": "https://zungfu.avature.net/en_US/careers/JobDetail/Hong-Kong-Corporate-Communication-and-Sustainability-Intern-6-months/1121" }
     ]
 }
 ```
@@ -301,9 +302,9 @@ Connect this scraper with other tools:
 
 ## Support & Contact
 
-Please visit my profile on Apify ([Mikhail Koviazin](https://apify.com/mikhail.koviazin))
+Please visit my profile on Apify ([Mikhail Koviazin](https://apify.com/mikhail.koviazin?fpr=494cb))
 to check other scrapers made by me.
 If you are looking for a custom scraping solution for Avature or any other website,
-feel free to [contact me](https://apify.com/mikhail.koviazin).
+feel free to [contact me](https://apify.com/mikhail.koviazin?fpr=494cb).
 
-Got a problem with **Avature Jobs Scraper**? Don't hesitate to reach me for support [here](https://apify.com/mikhail.koviazin).
+Got a problem with **Avature Job Scraper**? Don't hesitate to reach me for support [here](https://apify.com/mikhail.koviazin?fpr=494cb).
