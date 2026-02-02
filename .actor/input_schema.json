@@ -1,24 +1,65 @@
 {
-    "title": "CheerioCrawler Template",
+    "title": "Avature Job Scraper",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
             "title": "Start URLs",
             "type": "array",
-            "description": "URLs to start with.",
+            "description": "Avature career site URLs to scrape. Works with any domain using Avature (e.g., uclahealth.avature.net, bloomberg.avature.net).",
             "editor": "requestListSources",
             "prefill": [
                 {
-                    "url": "https://bloomberg.avature.net/careers"
+                    "url": "https://uclahealth.avature.net/careers/SearchJobs"
+                }
+            ],
+            "default": [
+                {
+                    "url": "https://uclahealth.avature.net/careers/SearchJobs"
                 }
             ]
         },
         "maxRequestsPerCrawl": {
             "title": "Max Requests per Crawl",
             "type": "integer",
-            "description": "Maximum number of requests that can be made by this crawler.",
-            "default": 100
+            "description": "Maximum number of pages to scrape (0 = unlimited).",
+            "default": 1000,
+            "minimum": 0
+        },
+        "maxConcurrency": {
+            "title": "Max Concurrency",
+            "type": "integer",
+            "description": "Maximum number of concurrent requests.",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 50
+        },
+        "scraperApiKey": {
+            "title": "ScraperAPI Key",
+            "type": "string",
+            "description": "Your ScraperAPI API key for rotating proxies.",
+            "editor": "textfield",
+            "isSecret": true
+        },
+        "scraperApiCountry": {
+            "title": "ScraperAPI Country",
+            "type": "string",
+            "description": "Country code for geo-targeted requests (e.g., 'us', 'uk', 'de'). Leave empty for automatic selection.",
+            "editor": "textfield"
+        },
+        "saveErrorSamples": {
+            "title": "Save Error Samples",
+            "type": "boolean",
+            "description": "Save HTML samples of error pages (404, 403, auth required, etc.) for debugging.",
+            "default": true
+        },
+        "errorSamplesPath": {
+            "title": "Error Samples Path",
+            "type": "string",
+            "description": "Directory path to save error page samples.",
+            "editor": "textfield",
+            "default": "./samples"
         }
-    }
+    },
+    "required": ["startUrls"]
 }

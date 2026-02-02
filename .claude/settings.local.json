@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:uclahealth.avature.net)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:bloomberg.avature.net)",
+      "WebFetch(domain:cbs.avature.net)",
+      "WebFetch(domain:paramountcareers.com)",
+      "WebSearch",
+      "WebFetch(domain:mantech.avature.net)",
+      "WebFetch(domain:delta.avature.net)",
+      "WebFetch(domain:unifi.avature.net)",
+      "WebFetch(domain:koch.avature.net)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:fix:*)",
+      "Bash(apify login:*)",
+      "Bash(apify whoami:*)",
+      "Bash(apify info:*)",
+      "Bash(apify push:*)",
+      "Bash(apify call:*)",
+      "Bash(apify actor get-value:*)",
+      "Bash(apify datasets get-items:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(dir:*)",
+      "Bash(npm run build)",
+      "Bash(node scripts/format-samples.js:*)",
+      "Bash(npx apify run:*)"
+    ]
+  }
+}

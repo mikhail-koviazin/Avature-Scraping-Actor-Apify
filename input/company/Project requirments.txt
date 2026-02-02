@@ -1,0 +1,50 @@
+﻿Project Brief: Avature ATS Scraper
+What is Avature?
+Avature is an Applicant Tracking System (ATS) that companies use to host job postings. Examples include:
+* Bloomberg: https://bloomberg.avature.net/careers
+* UCLA Health: https://uclahealth.avature.net/careers
+* CBS: https://cbs.avature.net/careers
+The Challenge
+Your mission is to build a scraper that extracts as many valid job postings as possible from as many Avature-hosted websites as possible.
+The Task
+1. Avature Site Discovery: Find out how to aggregate as many Avature-hosted career pages as possible to scrape jobs from (using the 3 examples above as a reference).
+2. Endpoint Discovery: Reverse-engineer the sites to find the most robust methods (API endpoints, URL patterns, etc.) for accessing the full job inventory.
+3. Extraction: For every job found, extract:
+   * Job Title
+   * Job Description (Clean text or HTML)
+   * Application URL
+   * Metadata (Location, Date Posted, etc., where available)
+4. Output: Store the data in a local file in any format.
+Success Criteria
+We evaluate this project based on three pillars:
+* Coverage (Primary Metric): How many unique jobs in total did you scrape?
+* Engineering Logic: How did you think about the problem?
+* Attention to Detail: Is the final dataset clean? Did you handle edge cases?
+Submission
+Please provide a link to a Git repository or a zipped folder containing:
+1. Your Code.
+2. Input File: The list of Avature-hosted URLs you discovered and used.
+3. Output File: The job data you scraped.
+Avature URL Starter Pack
+Attached is a starter pack of career site URLs. This list is not exhaustive and is intended only as an initial seed set.
+
+
+https://drive.google.com/file/d/1XvHhurCZc4duuNYIdnehrDIsfwN8pkx3/view?usp=sharing 
+
+
+You are expected to go beyond this list. There are many additional techniques and data sources that can be used to discover Avature-powered career pages. Use the starter pack as a launching point, then demonstrate your ability to systematically expand coverage and uncover additional Avature-hosted URLs at scale.
+
+
+Estimated time to completion
+
+
+Depending on your speed of execution, this take-home assignment typically takes between 8-24 hours to complete. Please do not spend more than 24 hours total (approximately 3 working days) on it. If you choose to spend less time, that’s completely fine. Many strong candidates submit partial solutions. Please include how long you spent, and we will evaluate your work in that context. We respect that candidates have personal lives and other commitments.
+
+
+To be clear, this is not free consulting work. This task reflects work we have already completed internally. We intentionally chose a more substantial assignment to give strong but non-obvious candidates (“hidden gems”) a real opportunity to demonstrate their thinking, depth, and problem-solving approach beyond surface-level signals.
+
+
+Use of AI Tools
+
+
+We strongly encourage using AI programming tools (e.g., ChatGPT, Cursor, Manus) during development to help you design, write, and debug your solution. However, your final runtime code must not depend on LLMs or external AI services, and must not use third-party browser automation/AI agent frameworks (e.g., Browserbase, Browseruse), as these approaches are not considered scalable for production.

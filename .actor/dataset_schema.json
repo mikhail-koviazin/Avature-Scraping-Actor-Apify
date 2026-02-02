@@ -3,20 +3,180 @@
     "fields": {},
     "views": {
         "overview": {
-            "title": "Overview",
+            "title": "Jobs Overview",
             "transformation": {
-                "fields": ["title", "url"]
+                "fields": [
+                    "title",
+                    "subdomain",
+                    "location",
+                    "salaryRaw",
+                    "employmentType",
+                    "postedDate",
+                    "url"
+                ]
             },
             "display": {
                 "component": "table",
                 "properties": {
                     "title": {
-                        "label": "Title",
+                        "label": "Job Title",
+                        "format": "text"
+                    },
+                    "subdomain": {
+                        "label": "Source",
+                        "format": "text"
+                    },
+                    "location": {
+                        "label": "Location",
+                        "format": "text"
+                    },
+                    "salaryRaw": {
+                        "label": "Salary",
+                        "format": "text"
+                    },
+                    "employmentType": {
+                        "label": "Type",
+                        "format": "text"
+                    },
+                    "postedDate": {
+                        "label": "Posted",
                         "format": "text"
                     },
                     "url": {
                         "label": "URL",
                         "format": "link"
+                    }
+                }
+            }
+        },
+        "detailed": {
+            "title": "Full Details",
+            "transformation": {
+                "fields": [
+                    "jobId",
+                    "refNumber",
+                    "subdomain",
+                    "title",
+                    "location",
+                    "workType",
+                    "schedule",
+                    "salaryMin",
+                    "salaryMax",
+                    "salaryPeriod",
+                    "salaryRaw",
+                    "employmentType",
+                    "employmentClassification",
+                    "duration",
+                    "department",
+                    "category",
+                    "entity",
+                    "postedDate",
+                    "description",
+                    "qualifications",
+                    "duties",
+                    "applyUrl",
+                    "url",
+                    "scrapedAt"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "jobId": {
+                        "label": "Job ID",
+                        "format": "text"
+                    },
+                    "refNumber": {
+                        "label": "Reference #",
+                        "format": "text"
+                    },
+                    "subdomain": {
+                        "label": "Source",
+                        "format": "text"
+                    },
+                    "title": {
+                        "label": "Title",
+                        "format": "text"
+                    },
+                    "location": {
+                        "label": "Location",
+                        "format": "text"
+                    },
+                    "workType": {
+                        "label": "Work Type",
+                        "format": "text"
+                    },
+                    "schedule": {
+                        "label": "Schedule",
+                        "format": "text"
+                    },
+                    "salaryMin": {
+                        "label": "Min Salary",
+                        "format": "number"
+                    },
+                    "salaryMax": {
+                        "label": "Max Salary",
+                        "format": "number"
+                    },
+                    "salaryPeriod": {
+                        "label": "Pay Period",
+                        "format": "text"
+                    },
+                    "salaryRaw": {
+                        "label": "Salary (Raw)",
+                        "format": "text"
+                    },
+                    "employmentType": {
+                        "label": "Employment Type",
+                        "format": "text"
+                    },
+                    "employmentClassification": {
+                        "label": "Classification",
+                        "format": "text"
+                    },
+                    "duration": {
+                        "label": "Duration",
+                        "format": "text"
+                    },
+                    "department": {
+                        "label": "Department",
+                        "format": "text"
+                    },
+                    "category": {
+                        "label": "Category",
+                        "format": "text"
+                    },
+                    "entity": {
+                        "label": "Entity",
+                        "format": "text"
+                    },
+                    "postedDate": {
+                        "label": "Posted Date",
+                        "format": "text"
+                    },
+                    "description": {
+                        "label": "Description",
+                        "format": "text"
+                    },
+                    "qualifications": {
+                        "label": "Qualifications",
+                        "format": "text"
+                    },
+                    "duties": {
+                        "label": "Duties",
+                        "format": "text"
+                    },
+                    "applyUrl": {
+                        "label": "Apply URL",
+                        "format": "link"
+                    },
+                    "url": {
+                        "label": "Job URL",
+                        "format": "link"
+                    },
+                    "scrapedAt": {
+                        "label": "Scraped At",
+                        "format": "date"
                     }
                 }
             }

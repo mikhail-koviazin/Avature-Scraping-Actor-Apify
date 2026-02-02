@@ -1,18 +1,18 @@
 {
-	"actorSpecification": 1,
-	"name": "avature-crawler",
-	"title": "Project Cheerio Crawler Typescript",
-	"description": "Crawlee and Cheerio project in typescript.",
-	"version": "0.0",
-	"buildTag": "latest",
-	"meta": {
-		"templateId": "ts-crawlee-cheerio",
-		"generatedBy": "<FILL-IN-MODEL>"
-	},
-	"input": "./input_schema.json",
-	"output": "./output_schema.json",
-	"storages": {
-		"dataset": "./dataset_schema.json"
-	},
-	"dockerfile": "../Dockerfile"
+    "actorSpecification": 1,
+    "name": "avature-crawler",
+    "title": "Avature Job Scraper",
+    "description": "Scrapes job listings from any Avature-powered career site. Extracts job titles, locations, salaries, descriptions, and more.",
+    "version": "0.1",
+    "buildTag": "latest",
+    "meta": {
+        "templateId": "ts-crawlee-cheerio",
+        "generatedBy": "Claude Code with Claude Opus 4.5"
+    },
+    "input": "./input_schema.json",
+    "output": "./output_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    },
+    "dockerfile": "../Dockerfile"
 }
