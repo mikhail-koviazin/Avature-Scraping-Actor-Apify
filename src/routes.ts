@@ -1,4 +1,5 @@
-import { type CheerioCrawlingContext,createCheerioRouter, Dataset } from '@crawlee/cheerio';
+import type {CheerioCrawlingContext,Source} from '@crawlee/cheerio';
+import { createCheerioRouter, Dataset} from '@crawlee/cheerio';
 import { log } from 'apify';
 
 export const enum Label {
@@ -356,16 +357,16 @@ function parseSalary(salaryStr: string | null): { min: string | null; max: strin
     else if (lowerSalary.includes('month')) result.period = 'monthly';
     else if (lowerSalary.includes('week')) result.period = 'weekly';
 
-    // Range: $XX.XX - $YY.YY or $XX,XXX - $YY,YYY
-    const rangeMatch = salaryStr.match(/\$?([\d,]+(?:\.\d{2})?)\s*[-–to]+\s*\$?([\d,]+(?:\.\d{2})?)/i);
+    // Range: $XX.XX - $YY.YY or $XX,XXX - $YY,YYY (supports 1+ decimal places)
+    const rangeMatch = salaryStr.match(/\$?([\d,]+(?:\.\d+)?)\s*[-–to]+\s*\$?([\d,]+(?:\.\d+)?)/i);
     if (rangeMatch) {
         result.min = rangeMatch[1].replace(/,/g, '');
         result.max = rangeMatch[2].replace(/,/g, '');
         return result;
     }
 
-    // Single value: $XX.XX
-    const singleMatch = salaryStr.match(/\$?([\d,]+(?:\.\d{2})?)/);
+    // Single value: $XX.XX (supports 1+ decimal places)
+    const singleMatch = salaryStr.match(/\$?([\d,]+(?:\.\d+)?)/);
     if (singleMatch) {
         result.min = singleMatch[1].replace(/,/g, '');
         result.max = result.min;
@@ -380,7 +381,7 @@ export const router = createCheerioRouter();
  * LISTING route handler - handles job search/listing pages
  * Extracts job links, metadata from cards, and handles pagination
  */
-router.addHandler(Label.LISTING, async ({ request, $, enqueueLinks }) => {
+router.addHandler(Label.LISTING, async ({ request, $, enqueueLinks, addRequests }) => {
     const baseUrl = getBaseUrl(request.loadedUrl ?? request.url);
     const subdomain = getSubdomain(request.loadedUrl ?? request.url);
     log.info(`Processing listing page`, { url: request.loadedUrl, subdomain });
@@ -394,7 +395,7 @@ router.addHandler(Label.LISTING, async ({ request, $, enqueueLinks }) => {
     }
 
     // Extract job detail links with any metadata available on the listing
-    const jobLinks: string[] = [];
+    const jobLinks: Source[] = [];
     const seenUrls = new Set<string>();
 
     $('a[href*="/careers/JobDetail/"], a[href*="/JobDetail/"]').each((_, el) => {
@@ -408,17 +409,42 @@ router.addHandler(Label.LISTING, async ({ request, $, enqueueLinks }) => {
         if (seenUrls.has(fullUrl)) return;
         seenUrls.add(fullUrl);
 
-        jobLinks.push(fullUrl);
+        const $article = $link.closest(".article");
+
+        const title = $article.find(".article__header__text__title").first().text().trim();
+
+        const subtitles: Record<string, string> = {};
+        $article.find(".article__header__text__subtitle").each((__, $subWrapper) => {
+            const $subtitles = $($subWrapper).find("[class^=list-item-]");
+            if (!$subtitles.length) {
+                subtitles.default = $($subWrapper).text().trim();
+            } else {
+                $subtitles.each((___, $subEl) => {
+                    const classNames = $($subEl).attr("class")?.split(" ") || [];
+                    const key = classNames.find((cn) => cn.startsWith("list-item-"))?.substring("list-item-".length);
+                    if (!key) {
+                        return;
+                    }
+                    subtitles[key] = $($subEl).text().trim();
+                });
+            }
+        });
+
+        jobLinks.push({
+            url: fullUrl,
+            label: Label.JOB_DETAIL,
+            userData: {
+                title,
+                subtitles
+            }
+        });
     });
 
     log.info(`Found ${jobLinks.length} job links on listing page`, { subdomain });
 
     // Enqueue job detail pages
     if (jobLinks.length > 0) {
-        await enqueueLinks({
-            urls: jobLinks,
-            label: Label.JOB_DETAIL,
-        });
+        await addRequests(jobLinks);
     }
 
     // Handle pagination
@@ -472,13 +498,13 @@ router.addHandler(Label.JOB_DETAIL, async ({ request, $ }) => {
     const jobIdMatch = url.match(/\/(\d+)(?:[/?#]|$)/);
     const jobId = jobIdMatch ? jobIdMatch[1] : null;
 
-    // Extract job title using specialized function (with URL fallback)
-    const title = getJobTitle(url);
+    // Extract job title from userData or using specialized function (with URL fallback)
+    const title = request.userData?.title || getJobTitle(url);
 
     // Location variations - try structured extraction first, then text-based
-    const location = getFieldByLabels([
+    const location = request.userData?.subtitles?.location || (getFieldByLabels([
         'work location', 'location', 'job location', 'city', 'office location',
-    ]) ?? getFieldFromText(['Location']);
+    ]) ?? getFieldFromText(['Location']));
 
     // Work type (remote/onsite/hybrid)
     const workType = getFieldByLabels([
@@ -536,14 +562,14 @@ router.addHandler(Label.JOB_DETAIL, async ({ request, $ }) => {
 
     // Reference/Requisition number (sometimes separate from job ID)
     // More specific patterns to avoid matching JavaScript content
-    const refNumber = getFieldByLabels([
-        'job #', 'job number', 'requisition', 'req id', 'position id', 'opening id',
+    const refNumber = request.userData?.subtitles?.ref?.toLowerCase().replaceAll(/(ref)\s#/g, "") || (getFieldByLabels([
+        'job #', 'job number', 'requisition', 'req id', 'position id', 'opening id', 'ref', 'ref #',
     ]) ?? getFieldFromText(['Ref #', 'Ref#', 'Reference'])
-        ?? getTextByPattern(/(?:job\s*#|ref\s*#|requisition[:\s]*#?)\s*(\d+)/i);
+        ?? getTextByPattern(/(?:job\s*#|ref\s*#|requisition[:\s]*#?)\s*(\d+)/i));
 
     // Application URL
     let applyUrl: string | null = null;
-    $('a[href*="ApplicationMethods"], a[href*="Apply"], a[href*="apply"]').each((_, el) => {
+    $('a[href*="ApplicationMethods"], a[href*="Apply"], a[href*="apply"], a:contains("Apply"), a:contains("apply"), a.button--primary').each((_, el) => {
         if (!applyUrl) {
             const href = $(el).attr('href');
             if (href) {
@@ -613,14 +639,9 @@ router.addHandler(Label.JOB_DETAIL, async ({ request, $ }) => {
         }
     });
 
-    // Method 3: Fallback - get main content area
-    if (!description && !duties && !qualifications) {
-        const mainContent = $('main, article, [role="main"], #content, .content')
-            .first().text().trim();
-        if (mainContent && mainContent.length > 100) {
-            description = mainContent;
-        }
-    }
+    // Get main content area (for further AI analysis)
+    const fullContent = $('main, article, [role="main"], #content, .content')
+        .first().text().trim();
 
     // Build job data object
     const jobData = {
@@ -659,9 +680,13 @@ router.addHandler(Label.JOB_DETAIL, async ({ request, $ }) => {
         description: description ?? null,
         qualifications: qualifications || null,
         duties: duties || null,
+        fullContent,
 
         // Application
         applyUrl,
+
+        // Additional info
+        additional: request.userData?.subtitles || null,
 
         // Metadata
         scrapedAt: new Date().toISOString(),
