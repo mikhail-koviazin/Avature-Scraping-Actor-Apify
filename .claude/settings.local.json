@@ -25,7 +25,9 @@
       "Bash(dir:*)",
       "Bash(npm run build)",
       "Bash(node scripts/format-samples.js:*)",
-      "Bash(npx apify run:*)"
+      "Bash(npx apify run:*)",
+      "Bash(npx tsx:*)",
+      "mcp__apify__apify-slash-rag-web-browser"
     ]
   }
 }

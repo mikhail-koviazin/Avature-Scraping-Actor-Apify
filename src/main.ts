@@ -5,7 +5,7 @@ import { setTimeout } from 'node:timers/promises';
 import { CheerioCrawler, type CheerioCrawlingContext } from '@crawlee/cheerio';
 import { Actor, log } from 'apify';
 
-import { getRouteLabel, Label, router } from './routes.js';
+import { getRouteLabel, Label, router } from './routes/index.js';
 
 interface StartUrl {
     url: string;
@@ -50,6 +50,9 @@ const ERROR_PAGE_PATTERNS = [
     { pattern: /job\s*(has\s*been\s*)?(closed|filled|expired|removed)/i, type: 'JOB_CLOSED' },
     { pattern: /position\s*(is\s*)?(no\s*longer\s*available|closed|filled)/i, type: 'JOB_CLOSED' },
     { pattern: /this\s*posting\s*(has\s*been\s*)?(closed|removed)/i, type: 'JOB_CLOSED' },
+    { pattern: /multiple\s*users\s*connecting\s*from\s*your\s*ip/i, type: 'PROXY_RATE_LIMITED' },
+    { pattern: /rate\s*limit/i, type: 'RATE_LIMITED' },
+    { pattern: /too\s*many\s*requests/i, type: 'RATE_LIMITED' },
 ];
 
 /**
@@ -283,6 +286,8 @@ const crawler = new CheerioCrawler({
             if (statusCode === 401) errorType = 'UNAUTHORIZED';
             else if (statusCode === 403) errorType = 'ACCESS_DENIED';
             else if (statusCode === 404) errorType = 'PAGE_NOT_FOUND';
+            else if (statusCode === 429) errorType = 'RATE_LIMITED';
+            else if (statusCode === 499) errorType = 'PROXY_RATE_LIMITED'; // ScraperAPI rate limit
             else if (statusCode >= 500) errorType = 'SERVER_ERROR';
 
             const errorMessage = `HTTP ${statusCode} error`;
